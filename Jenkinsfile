@@ -78,5 +78,31 @@ pipeline {
                 sh "trivy image --format table -o trivy-image-report.html salmansk15/boardgamesalman:dev"
             }
         }
+
+        stage('pushDockerImage') {
+            steps {
+                withDockerRegistry(credentialsId: 'docker', url: 'https://index.docker.io/v1/') {
+                    sh "docker push salmansk15/boardgamesalman:dev"
+                }
+            }
+        }
+
+        stage('kubernetesDeployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'minikube', credentialsId: 'k8s-cred', namespace: 'boardgame-dev', serverUrl: 'https://192.168.49.2:8443') {
+                    sh "kubectl apply -f deployment-service.yaml"
+                }
+            }
+        }
+
+        stage('verifyingDeployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'minikube', credentialsId: 'k8s-cred', namespace: 'boardgame-dev', serverUrl: 'https://192.168.49.2:8443') {
+                    sh "kubectl get pods -n boardgame-dev"
+                    sh "kubectl get svc -n boardgame-dev"
+                }
+            }
+        }
+    }
     }
 }
