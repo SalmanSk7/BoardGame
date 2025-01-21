@@ -105,7 +105,7 @@ pipeline {
                 sh "git config --global --add safe.directory ./"
                 sh 'git add argocd/01-deployment.yaml'
                 sh "git commit -m 'Update deployment image to $NEW_IMAGE_NAME'"
-                sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/BoardGame HEAD:main"
+                sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/BoardGame HEAD:dev"
 
             }
         }
