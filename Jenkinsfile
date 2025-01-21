@@ -45,6 +45,12 @@ pipeline {
             }
         }
 
+        stage('Wait for % seconds') {
+            steps {
+                sh 'sleep 5'
+            }
+        }
+
         stage('qualityGate') {
             steps {
                 script {
