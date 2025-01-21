@@ -8,6 +8,9 @@ pipeline {
 
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
+        NEW_IMAGE_NAME = "salmansk15/boardgamesalman:dev"
+        GIT_USER_NAME = credentials('git-username')
+        GITHUB_TOKEN = credentials('github-token')
     }
 
     stages {
@@ -68,39 +71,42 @@ pipeline {
         stage('buildTagDockerImage') {
             steps {
                 withDockerRegistry(credentialsId: 'docker', url: 'https://index.docker.io/v1/') {
-                    sh "docker build -t salmansk15/boardgamesalman:dev ."
+                    sh "docker build -t $NEW_IMAGE_NAME ."
                 }
             }
         }
 
         stage('dockerImageScan') {
             steps {
-                sh "trivy image --format table -o trivy-image-report.html salmansk15/boardgamesalman:dev"
+                sh "trivy image --format table -o trivy-image-report.html $NEW_IMAGE_NAME"
             }
         }
 
         stage('pushDockerImage') {
             steps {
                 withDockerRegistry(credentialsId: 'docker', url: 'https://index.docker.io/v1/') {
-                    sh "docker push salmansk15/boardgamesalman:dev"
+                    sh "docker push $NEW_IMAGE_NAME"
                 }
             }
         }
 
-        stage('kubernetesDeployment') {
+        stage('Checkout Code') {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: 'minikube', credentialsId: 'k8s-cred', namespace: 'boardgame-dev', serverUrl: 'https://192.168.49.2:8443') {
-                    sh "kubectl apply -f deployment-service.yaml"
-                }
+                git branch: 'main', url: 'https://github.com/SalmanSk7/BoardGame.git'
             }
         }
 
-        stage('verifyingDeployment') {
+        stage('Update Deployment File') {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: 'minikube', credentialsId: 'k8s-cred', namespace: 'boardgame-dev', serverUrl: 'https://192.168.49.2:8443') {
-                    sh "kubectl get pods -n boardgame-dev"
-                    sh "kubectl get svc -n boardgame-dev"
-                }
+                sh "sed -i 's|image: .*|image: $NEW_IMAGE_NAME|' argocd/01-deployment.yaml"
+                sh "cat argocd/01-deployment.yaml"
+                sh "git config user.name 'Jenkins CI'"
+                sh "git config user.email 'jenkins@example.com'"
+                sh "git config --global --add safe.directory ./"
+                sh 'git add argocd/01-deployment.yaml'
+                sh "git commit -m 'Update deployment image to $NEW_IMAGE_NAME'"
+                sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/BoardGame HEAD:main"
+
             }
         }
     }
