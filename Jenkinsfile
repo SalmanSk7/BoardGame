@@ -45,7 +45,7 @@ pipeline {
             }
         }
 
-        stage('Wait for % seconds') {
+        stage('Wait for 5 seconds') {
             steps {
                 sh 'sleep 5'
             }
