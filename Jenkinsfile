@@ -65,14 +65,6 @@ pipeline {
             }
         }
 
-        stage('publishArtifactToNexus') {
-            steps {
-                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', traceability: true) {
-                    sh "mvn deploy"
-                }
-            }
-        }
-
         stage('buildTagDockerImage') {
             steps {
                 withDockerRegistry(credentialsId: 'docker', url: 'https://index.docker.io/v1/') {
