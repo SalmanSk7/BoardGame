@@ -17,7 +17,7 @@ pipeline {
         
         stage('gitCheckout') {
             steps {
-                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/SalmanSk7/BoardGame.git'
+                git branch: 'dev', credentialsId: 'git-cred', url: 'https://github.com/SalmanSk7/BoardGame.git'
             }
         }
 
@@ -92,7 +92,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/SalmanSk7/BoardGame.git'
+                git branch: 'dev', url: 'https://github.com/SalmanSk7/BoardGame.git'
             }
         }
 
