@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
-        NEW_IMAGE_NAME = "salmansk15/boardgamesalman:dev"
+        NEW_IMAGE_NAME = "salmansk15/boardgamesalman:staging"
         GIT_USER_NAME = credentials('git-username')
         GITHUB_TOKEN = credentials('github-token')
     }
@@ -17,7 +17,7 @@ pipeline {
         
         stage('gitCheckout') {
             steps {
-                git branch: 'dev', credentialsId: 'git-cred', url: 'https://github.com/SalmanSk7/BoardGame.git'
+                git branch: 'staging', credentialsId: 'git-cred', url: 'https://github.com/SalmanSk7/BoardGame.git'
             }
         }
 
@@ -92,7 +92,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'dev', url: 'https://github.com/SalmanSk7/BoardGame.git'
+                git branch: 'staging', url: 'https://github.com/SalmanSk7/BoardGame.git'
             }
         }
 
@@ -105,7 +105,8 @@ pipeline {
                 sh "git config --global --add safe.directory ./"
                 sh 'git add argocd/01-deployment.yaml'
                 sh "git commit -m 'Update deployment image to $NEW_IMAGE_NAME'"
-                sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/BoardGame HEAD:dev"
+                sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/BoardGame HEAD:staging"
+
             }
         }
     }
