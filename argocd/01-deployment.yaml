@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: boardgame
-          image: salmansk15/boardgamesalman:staging
+          image: salmansk15/boardgamesalman:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8080 # The port that the container is running on in the cluster
